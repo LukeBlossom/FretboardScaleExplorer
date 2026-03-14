@@ -2,7 +2,7 @@
 
 An interactive scale visualizer for guitar and bass — no installation, no account, no internet required. Open the HTML file in any browser and start playing.
 
-![Scale Explorer screenshot](screenshot.png)
+[Scale Explorer screenshot](screenshot.png)
 
 ## Features
 
