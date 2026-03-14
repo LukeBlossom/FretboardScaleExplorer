@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fretboard Scale Explorer — Guitar &amp; Bass Scale Visualizer</title>
+
+<!-- SEO -->
+<meta name="description" content="Free interactive guitar and bass scale explorer. Visualize 14 scales across 24 frets, look up the key of 270+ songs, and find YouTube backing tracks. Works offline — no install needed.">
+<meta name="author" content="Luke Blossom">
+<meta name="keywords" content="guitar scales, bass scales, fretboard, scale visualizer, music theory, pentatonic, backing tracks, guitar tool">
+<link rel="canonical" href="https://lukeblossom.github.io/fretboard-scale-explorer/">
+
+<!-- Open Graph (social sharing) -->
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="https://lukeblossom.github.io/fretboard-scale-explorer/">
+<meta property="og:title"       content="Fretboard Scale Explorer — Free Guitar &amp; Bass Scale Visualizer">
+<meta property="og:description" content="Visualize 14 scales on guitar or bass, look up the key of 270+ songs, and find backing tracks. Free, offline, no signup.">
+<meta property="og:image"       content="https://lukeblossom.github.io/fretboard-scale-explorer/screenshot.png">
+
+<!-- Twitter Card -->
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="Fretboard Scale Explorer — Free Guitar &amp; Bass Scale Visualizer">
+<meta name="twitter:description" content="Visualize 14 scales on guitar or bass, look up the key of 270+ songs, and find backing tracks. Free, offline, no signup.">
+<meta name="twitter:image"       content="https://lukeblossom.github.io/fretboard-scale-explorer/screenshot.png">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  /* ── Warm Neutral Base ── */
+  --bg:          #F2EDE6;
+  --surface:     #FFFFFF;
+  --surface2:    #FAF7F3;
+  --border:      #DDD5CA;
+  --border-soft: #EDE7DE;
+
+  /* ── Typography ── */
+  --text:        #2A1F13;
+  --text-mid:    #5C4E3E;
+  --text-muted:  #9A8A78;
+
+  /* ── Accent — Terracotta ── */
+  --accent:      #B5541C;
+  --accent-soft: #F3E8E0;
+  --accent-dk:   #8C3D12;
+
+  /* ── Note Colors ── */
+  --root:        #C0392B;
+  --root-bg:     #FDECEA;
+  --scale-note:  #1A6494;
+  --scale-bg:    #E8F3FB;
+  --tab-note:    #27603C;
+  --tab-bg:      #E6F4EC;
+
+  /* ── Maple ── */
+  --maple-a:     #F9F0DC;
+  --maple-b:     #EDD9A3;
+  --maple-c:     #E0C280;
+  --fret-line:   #B0A080;
+  --string-col:  #C8B88A;
+  --nut-col:     #F2ECDF;
+  --dot-inlay:   #7D6A4A;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* ─── HEADER ─── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.logo-mark {
+  width: 42px; height: 42px;
+  background: var(--accent);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+header h1 { font-size: 1.35rem; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+header h1 em { font-style: normal; color: var(--accent); }
+.sub { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ─── CONTAINER ─── */
+.container { max-width: 1320px; margin: 0 auto; padding: 22px 18px; }
+
+/* ─── CONTROL BAR ─── */
+.ctrl-bar {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  align-items: flex-end;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+.ctrl-group label {
+  font-size: 0.68rem; font-weight: 700;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .6px;
+}
+select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  min-width: 136px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239A8A78'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+select:focus { outline: 2px solid var(--accent); border-color: transparent; }
+
+/* Instrument badge */
+.inst-badge {
+  display: inline-block;
+  font-size: 0.65rem; font-weight: 800; letter-spacing: .5px;
+  padding: 2px 8px; border-radius: 10px;
+  background: var(--accent-soft); color: var(--accent);
+  border: 1px solid #E5C4AF;
+  margin-left: 6px; vertical-align: middle;
+}
+
+.btn {
+  padding: 8px 18px; border-radius: 8px; border: none;
+  cursor: pointer; font-size: 0.86rem; font-weight: 600;
+  transition: all 0.14s; letter-spacing: .1px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dk); }
+.btn-outline {
+  background: var(--surface); color: var(--text-mid);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 6px 13px; font-size: 0.8rem; }
+
+/* ─── SCALE INFO STRIP ─── */
+.scale-strip {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 16px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.scale-name { font-weight: 700; font-size: 0.98rem; color: var(--accent); margin-right: 6px; }
+.note-pill {
+  padding: 3px 11px; border-radius: 20px;
+  font-size: 0.79rem; font-weight: 700;
+  background: var(--scale-bg);
+  color: var(--scale-note);
+  border: 1px solid #B8D9ED;
+}
+.note-pill.root { background: var(--root-bg); color: var(--root); border-color: #F5B7B1; }
+.iname { font-size: 0.65rem; opacity: 0.75; margin-left: 2px; }
+
+/* ─── FRETBOARD CARD ─── */
+.fretboard-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 20px 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  overflow-x: auto;
+}
+.card-title {
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .6px;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ─── FRETBOARD TABLE ─── */
+.fb-table { border-collapse: collapse; min-width: 860px; width: 100%; }
+
+.fh {
+  text-align: center; font-size: 0.68rem; font-weight: 700;
+  color: var(--text-muted); padding: 0 0 8px; min-width: 48px;
+}
+.fh.open-h { min-width: 36px; }
+
+.slabel {
+  text-align: right; font-size: 0.76rem; font-weight: 700;
+  color: var(--text-muted); padding-right: 10px; width: 28px;
+  vertical-align: middle; white-space: nowrap;
+}
+
+/* Fret cells — maple wood */
+.fc {
+  position: relative; height: 42px;
+  vertical-align: middle;
+  border-right: 2.5px solid var(--fret-line);
+  background: linear-gradient(180deg,
+    var(--maple-a) 0%, var(--maple-b) 35%, var(--maple-c) 50%, var(--maple-b) 65%, var(--maple-a) 100%
+  );
+  min-width: 48px;
+}
+.fc.open-fc {
+  background: none; border-right: none;
+  min-width: 36px;
+}
+.nut-sep {
+  border-right: 5px solid #EDE8DB;
+}
+
+/* String wire — Guitar (6-string) */
+.sw {
+  position: absolute; top: 50%; left: 0; right: 0;
+  height: 2px; transform: translateY(-50%);
+  background: var(--string-col); pointer-events: none; z-index: 0;
+}
+.str-0 .sw { height: 3.5px; background: #B09860; }
+.str-1 .sw { height: 3px;   background: #BAA870; }
+.str-2 .sw { height: 2.5px; background: #C2B07E; }
+.str-3 .sw { height: 2px;   background: #CAB888; }
+.str-4 .sw { height: 1.5px; background: #D2C098; }
+.str-5 .sw { height: 1px;   background: #DACCAA; }
+
+/* String wire — Bass (overrides when data-mode="bass4" or "bass5") */
+body[data-mode="bass4"] .str-0 .sw { height: 2.5px; background: #C8B880; }
+body[data-mode="bass4"] .str-1 .sw { height: 4px;   background: #B8A468; }
+body[data-mode="bass4"] .str-2 .sw { height: 5.5px; background: #A08840; }
+body[data-mode="bass4"] .str-3 .sw { height: 7px;   background: #887028; }
+
+body[data-mode="bass5"] .str-0 .sw { height: 2.5px; background: #C8B880; }
+body[data-mode="bass5"] .str-1 .sw { height: 4px;   background: #B8A468; }
+body[data-mode="bass5"] .str-2 .sw { height: 5.5px; background: #A08840; }
+body[data-mode="bass5"] .str-3 .sw { height: 7px;   background: #887028; }
+body[data-mode="bass5"] .str-4 .sw { height: 8.5px; background: #6E5818; }
+
+/* Note dots */
+.nd {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.67rem; font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+  z-index: 3;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+.nd:hover { transform: translate(-50%,-50%) scale(1.18); box-shadow: 0 3px 8px rgba(0,0,0,0.22); }
+.nd.nd-root  { background: var(--root);       color: #fff; }
+.nd.nd-scale { background: var(--scale-note); color: #fff; }
+.nd.nd-tab   { background: var(--tab-note);   color: #fff; border: 2.5px solid #1B4D2E; }
+
+/* ─── POSITION DOT MARKERS (below strings) ─── */
+.dot-row { background: none; }
+.dot-row td { padding: 0; height: 22px; vertical-align: top; }
+.dot-cell { text-align: center; padding-top: 4px; }
+.dot-inlay {
+  display: inline-block;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--dot-inlay); opacity: 0.55;
+}
+.dot-double { display: flex; gap: 16px; justify-content: center; }
+
+/* ─── BOTTOM GRID ─── */
+.bottom-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+}
+@media(max-width:800px) { .bottom-grid { grid-template-columns: 1fr; } }
+
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.section-card h2 {
+  font-size: 0.9rem; font-weight: 700;
+  color: var(--text); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 7px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.section-card h2 .ico { font-size: 1rem; }
+
+/* ─── SONG SEARCH ─── */
+.search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.search-row input {
+  flex: 1; background: var(--surface2);
+  border: 1px solid var(--border); color: var(--text);
+  border-radius: 8px; padding: 9px 12px; font-size: 0.88rem;
+}
+.search-row input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+.search-row input::placeholder { color: var(--text-muted); }
+
+.song-result {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  min-height: 60px;
+  margin-bottom: 12px;
+}
+.song-found { display: flex; align-items: flex-start; gap: 12px; }
+.song-key-badge {
+  font-size: 2rem; font-weight: 900;
+  color: var(--accent); line-height: 1;
+  min-width: 40px;
+}
+.song-info h3 { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.song-info p { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
+.song-info .scale-tag {
+  display: inline-block; margin-top: 5px;
+  padding: 2px 10px; border-radius: 12px;
+  font-size: 0.73rem; font-weight: 700;
+  background: var(--scale-bg); color: var(--scale-note);
+}
+.song-not-found { color: var(--text-muted); font-size: 0.84rem; }
+.song-not-found a { color: var(--accent); text-decoration: none; }
+.song-not-found a:hover { text-decoration: underline; }
+
+.external-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.ext-link {
+  font-size: 0.76rem; padding: 4px 11px; border-radius: 6px;
+  background: var(--surface2); color: var(--text-muted);
+  text-decoration: none; border: 1px solid var(--border);
+  transition: all 0.13s;
+}
+.ext-link:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ─── YOUTUBE BACKING TRACK ─── */
+.yt-bpm-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.yt-bpm-row input[type="range"] { flex: 1; accent-color: #FF0000; }
+.yt-bpm-num { font-weight: 700; color: var(--accent); min-width: 34px; font-size: 0.88rem; }
+.yt-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+.yt-chip {
+  padding: 5px 13px; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+  border: 1.5px solid var(--border); background: var(--surface2); color: var(--text-muted);
+  cursor: pointer; transition: all 0.13s; user-select: none;
+}
+.yt-chip.active { border-color: #CC0000; background: #FFF0F0; color: #CC0000; }
+.yt-query-preview {
+  font-size: 0.8rem; color: var(--text-muted); font-style: italic;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 12px; margin-bottom: 14px;
+  min-height: 36px; line-height: 1.5;
+}
+.yt-search-btn {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%; padding: 12px; border-radius: 9px; border: none;
+  background: #FF0000; color: #fff;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: background 0.14s; margin-bottom: 14px;
+  text-decoration: none;
+}
+.yt-search-btn:hover { background: #CC0000; }
+.yt-search-btn svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
+.yt-suggestions { display: flex; flex-direction: column; gap: 6px; }
+.yt-sugg {
+  font-size: 0.78rem; color: var(--text-muted); text-decoration: none;
+  padding: 6px 10px; border-radius: 7px; border: 1px solid var(--border);
+  background: var(--surface2); transition: all 0.12s;
+  display: flex; align-items: center; gap: 7px;
+}
+.yt-sugg:hover { border-color: #CC0000; color: #CC0000; background: #FFF0F0; }
+.yt-sugg::before { content: '↗'; font-size: 0.72rem; opacity: 0.6; }
+
+/* ─── LEGEND ─── */
+.legend {
+  display: flex; gap: 18px; flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.leg-item { display: flex; align-items: center; gap: 7px; font-size: 0.78rem; color: var(--text-muted); }
+.leg-dot { width: 14px; height: 14px; border-radius: 50%; }
+
+/* ─── KO-FI BUTTON ─── */
+.kofi-btn {
+  position: fixed; bottom: 22px; right: 22px; z-index: 999;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #FF5E5B; color: #fff;
+  padding: 10px 18px; border-radius: 22px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.84rem; font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 3px 12px rgba(255,94,91,0.40);
+  transition: transform 0.13s, box-shadow 0.13s;
+}
+.kofi-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(255,94,91,0.45); }
+.kofi-btn svg  { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* ─── FOOTER ─── */
+.site-footer {
+  text-align: center;
+  padding: 22px 18px 80px;
+  font-size: 0.75rem; color: var(--text-muted);
+  border-top: 1px solid var(--border-soft);
+  margin-top: 8px;
+}
+.site-footer a { color: var(--text-muted); text-decoration: none; border-bottom: 1px solid var(--border); }
+.site-footer a:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:620px) {
+  .ctrl-bar { padding: 12px; gap: 10px; }
+  header h1 { font-size: 1.1rem; }
+  .kofi-btn { bottom: 14px; right: 14px; padding: 9px 14px; font-size: 0.8rem; }
+}
+</style>
+</head>
+<body data-mode="guitar">
+
+<header>
+  <div class="logo-mark" id="logo-mark">🎸</div>
+  <div>
+    <h1>Fretboard <em>Scale Explorer</em></h1>
+    <div class="sub" id="header-sub">Interactive scale visualizer · Guitar &amp; Bass · Song key detection · Backing track generator</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- CONTROLS -->
+  <div class="ctrl-bar">
+    <div class="ctrl-group">
+      <label>Instrument</label>
+      <select id="inst-sel">
+        <option value="guitar">🎸 Guitar (6-string)</option>
+        <option value="bass4">🎵 Bass (4-string)</option>
+        <option value="bass5">🎵 Bass (5-string)</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label>Root Note</label>
+      <select id="key-sel">
+        <option>C</option><option>C#/Db</option><option>D</option><option>D#/Eb</option>
+        <option>E</option><option>F</option><option>F#/Gb</option><option>G</option>
+        <option>G#/Ab</option><option value="A" selected>A</option><option>A#/Bb</option><option>B</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label>Scale</label>
+      <select id="scale-sel">
+        <option>Major</option>
+        <option>Natural Minor</option>
+        <option>Harmonic Minor</option>
+        <option>Melodic Minor</option>
+        <option>Pentatonic Major</option>
+        <option selected>Pentatonic Minor</option>
+        <option>Blues</option>
+        <option>Dorian</option>
+        <option>Phrygian</option>
+        <option>Lydian</option>
+        <option>Mixolydian</option>
+        <option>Locrian</option>
+        <option>Whole Tone</option>
+        <option>Diminished</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label>Tuning</label>
+      <select id="tuning-sel">
+        <!-- populated dynamically by updateTuningOptions() -->
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label>Display</label>
+      <select id="display-sel">
+        <option value="notes">Note Names</option>
+        <option value="intervals">Intervals</option>
+        <option value="degrees">Scale Degrees</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label>Frets</label>
+      <select id="frets-sel">
+        <option value="12">12 frets</option>
+        <option value="15" selected>15 frets</option>
+        <option value="17">17 frets</option>
+        <option value="22">22 frets</option>
+        <option value="24">24 frets</option>
+      </select>
+    </div>
+    <div class="ctrl-group" style="flex-direction:row;gap:8px;align-items:flex-end">
+      <button class="btn btn-outline" onclick="toggleOpen()">Open strings: <b id="open-lbl">On</b></button>
+    </div>
+  </div>
+
+  <!-- SCALE STRIP -->
+  <div class="scale-strip">
+    <span class="scale-name" id="sname">A Pentatonic Minor</span>
+    <div id="spills"></div>
+  </div>
+
+  <!-- FRETBOARD -->
+  <div class="fretboard-card">
+    <div class="card-title" id="fb-title">🎸 Maple Fretboard &nbsp;·&nbsp; click a note to hear it</div>
+    <div id="fb"></div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:var(--root)"></div> Root</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--scale-note)"></div> Scale note</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--tab-note)"></div> Found in song</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--border);border:1.5px solid #C9BFB3"></div> Outside scale</div>
+  </div>
+
+  <!-- BOTTOM GRID -->
+  <div class="bottom-grid">
+
+    <!-- SONG SEARCH -->
+    <div class="section-card">
+      <h2><span class="ico">🔍</span> Song Key Lookup</h2>
+      <div class="search-row">
+        <input type="text" id="song-input" placeholder="e.g. Smoke on the Water, Billie Jean…" onkeydown="if(event.key==='Enter') lookupSong()">
+        <button class="btn btn-primary" onclick="lookupSong()">Search</button>
+      </div>
+      <div class="song-result" id="song-result">
+        <div class="song-not-found" style="padding-top:4px">Type a song name and press Search to auto-detect its key and scale.</div>
+      </div>
+      <div id="ext-links" style="display:none" class="external-links"></div>
+    </div>
+
+    <!-- YOUTUBE BACKING TRACK -->
+    <div class="section-card">
+      <h2>
+        <span class="ico">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:#FF0000;vertical-align:middle"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8z"/><polygon points="9.75,15.02 15.5,12 9.75,8.98" fill="white"/></svg>
+        </span>
+        YouTube Backing Track
+      </h2>
+
+      <div style="margin-bottom:4px;font-size:0.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px">
+        Tempo: <span id="yt-bpm-val">90</span> BPM
+      </div>
+      <div class="yt-bpm-row">
+        <span style="font-size:.7rem;color:var(--text-muted)">40</span>
+        <input type="range" id="yt-bpm" min="40" max="220" value="90" oninput="updateYT()">
+        <span style="font-size:.7rem;color:var(--text-muted)">220</span>
+      </div>
+
+      <div style="margin-bottom:6px;font-size:0.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px">Filters</div>
+      <div class="yt-chips" id="yt-chips">
+        <span class="yt-chip active" data-tag-guitar="guitar backing track" data-tag-bass="bass backing track" onclick="toggleChip(this)">Guitar/Bass</span>
+        <span class="yt-chip" data-tag-guitar="looping" data-tag-bass="looping" onclick="toggleChip(this)">Looping</span>
+        <span class="yt-chip" data-tag-guitar="slow jam" data-tag-bass="slow jam" onclick="toggleChip(this)">Slow Jam</span>
+        <span class="yt-chip" data-tag-guitar="blues" data-tag-bass="blues" onclick="toggleChip(this)">Blues</span>
+        <span class="yt-chip" data-tag-guitar="no drums" data-tag-bass="no drums" onclick="toggleChip(this)">No Drums</span>
+        <span class="yt-chip" data-tag-guitar="funk" data-tag-bass="funk" onclick="toggleChip(this)">Funk</span>
+        <span class="yt-chip" data-tag-guitar="rock" data-tag-bass="rock" onclick="toggleChip(this)">Rock</span>
+        <span class="yt-chip" data-tag-guitar="jazz" data-tag-bass="jazz" onclick="toggleChip(this)">Jazz</span>
+      </div>
+
+      <div style="margin-bottom:6px;font-size:0.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px">Search query</div>
+      <div class="yt-query-preview" id="yt-preview"></div>
+
+      <a class="yt-search-btn" id="yt-link" href="#" target="_blank" onclick="return openYT()">
+        <svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8z"/><polygon points="9.75,15.02 15.5,12 9.75,8.98" fill="white"/></svg>
+        Search on YouTube
+      </a>
+
+      <div style="margin-bottom:6px;font-size:0.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px">Quick searches</div>
+      <div class="yt-suggestions" id="yt-suggestions"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ SCRIPT ═══ -->
+<script>
+// ────────────────────────────────────────────────────────────────────
+// MUSIC THEORY
+// ────────────────────────────────────────────────────────────────────
+const CHR  = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const ENAR = { 'C#/Db':'C#','D#/Eb':'D#','F#/Gb':'F#','G#/Ab':'G#','A#/Bb':'A#' };
+const SCALES = {
+  'Major':            [0,2,4,5,7,9,11],
+  'Natural Minor':    [0,2,3,5,7,8,10],
+  'Harmonic Minor':   [0,2,3,5,7,8,11],
+  'Melodic Minor':    [0,2,3,5,7,9,11],
+  'Pentatonic Major': [0,2,4,7,9],
+  'Pentatonic Minor': [0,3,5,7,10],
+  'Blues':            [0,3,5,6,7,10],
+  'Dorian':           [0,2,3,5,7,9,10],
+  'Phrygian':         [0,1,3,5,7,8,10],
+  'Lydian':           [0,2,4,6,7,9,11],
+  'Mixolydian':       [0,2,4,5,7,9,10],
+  'Locrian':          [0,1,3,5,6,8,10],
+  'Whole Tone':       [0,2,4,6,8,10],
+  'Diminished':       [0,2,3,5,6,8,9,11],
+};
+const INAMES = {0:'R',1:'b2',2:'2',3:'b3',4:'3',5:'4',6:'b5',7:'5',8:'b6',9:'6',10:'b7',11:'7'};
+const DEG    = ['I','II','III','IV','V','VI','VII'];
+
+// ─── GUITAR TUNINGS ───
+const TUNINGS = {
+  standard: [4,9,2,7,11,4],
+  dropD:    [2,9,2,7,11,4],
+  openG:    [2,7,2,7,11,2],
+  openD:    [2,9,2,6,9,2],
+  halfDown: [3,8,1,6,10,3],
+  fullDown: [2,7,0,5,9,2],
+};
+const TUNING_LABELS = {
+  standard:'e B G D A E', dropD:'e B G D A D', openG:'d B G D G D',
+  openD:'d A F# D A D', halfDown:'eb Bb Gb Db Ab Eb', fullDown:'d A F C G D',
+};
+// Open-string octaves for guitar (index = string 0=low E → 5=high e)
+const GUITAR_OPEN_OCTAVES = [2, 2, 3, 3, 3, 4];
+
+// ─── BASS TUNINGS ───
+const BASS_TUNINGS = {
+  'bass4-standard': [4, 9, 2, 7],       // E A D G
+  'bass4-dropD':    [2, 9, 2, 7],       // D A D G
+  'bass4-halfDown': [3, 8, 1, 6],       // Eb Ab Db Gb
+  'bass4-openE':    [4, 11, 4, 7],      // E B E G
+  'bass5-standard': [11, 4, 9, 2, 7],   // B E A D G
+  'bass5-dropA':    [9,  4, 9, 2, 7],   // A E A D G
+};
+const BASS_TUNING_LABELS = {
+  'bass4-standard': 'G D A E',
+  'bass4-dropD':    'G D A D',
+  'bass4-halfDown': 'Gb Db Ab Eb',
+  'bass4-openE':    'G E B E',
+  'bass5-standard': 'G D A E B',
+  'bass5-dropA':    'G D A E A',
+};
+// Open-string octaves for bass (index = string 0=lowest → n=highest)
+const BASS_OPEN_OCTAVES = {
+  'bass4-standard': [1, 1, 2, 2],   // E1 A1 D2 G2
+  'bass4-dropD':    [1, 1, 2, 2],   // D1 A1 D2 G2
+  'bass4-halfDown': [1, 1, 2, 2],
+  'bass4-openE':    [1, 1, 1, 2],
+  'bass5-standard': [0, 1, 1, 2, 2], // B0 E1 A1 D2 G2
+  'bass5-dropA':    [1, 1, 1, 2, 2], // A1 E1 A1 D2 G2
+};
+
+const FRET_DOTS   = [3,5,7,9,12,15,17,19,21];
+const DOUBLE_DOTS = [12,24];
+
+// ─── TUNING OPTION HTML ───
+const GUITAR_TUNING_HTML = `
+  <option value="standard">Standard (EADGBe)</option>
+  <option value="dropD">Drop D (DADGBe)</option>
+  <option value="openG">Open G (DGDGBd)</option>
+  <option value="openD">Open D (DADf#Ad)</option>
+  <option value="halfDown">Half Step Down (Eb Ab Db Gb Bb eb)</option>
+  <option value="fullDown">Full Step Down (DGCFAd)</option>
+`;
+const BASS_TUNING_HTML = {
+  bass4: `
+    <option value="bass4-standard">Standard (EADG)</option>
+    <option value="bass4-dropD">Drop D (DADG)</option>
+    <option value="bass4-halfDown">Half Step Down (Eb Ab Db Gb)</option>
+    <option value="bass4-openE">Open E (EBEG)</option>
+  `,
+  bass5: `
+    <option value="bass5-standard">Standard 5-String (BEADG)</option>
+    <option value="bass5-dropA">Drop A (AEADG)</option>
+  `,
+};
+
+// ────────────────────────────────────────────────────────────────────
+// SONG DATABASE  (270+ songs — duplicates removed, keys corrected)
+// ────────────────────────────────────────────────────────────────────
+const SONG_DB = {
+  // ── ROCK CLASSICS
+  "smoke on the water":        {key:"G",  scale:"Natural Minor",    artist:"Deep Purple"},
+  "back in black":             {key:"A",  scale:"Major",            artist:"AC/DC"},
+  "sweet child o mine":        {key:"D",  scale:"Major",            artist:"Guns N' Roses"},
+  "sweet child o' mine":       {key:"D",  scale:"Major",            artist:"Guns N' Roses"},
+  "whole lotta love":          {key:"E",  scale:"Pentatonic Minor",  artist:"Led Zeppelin"},
+  "stairway to heaven":        {key:"A",  scale:"Natural Minor",    artist:"Led Zeppelin"},
+  "hotel california":          {key:"B",  scale:"Natural Minor",    artist:"Eagles"},
+  "bohemian rhapsody":         {key:"A#/Bb",scale:"Major",          artist:"Queen"},
+  "purple haze":               {key:"E",  scale:"Pentatonic Minor",  artist:"Jimi Hendrix"},
+  "satisfaction":              {key:"E",  scale:"Pentatonic Minor",  artist:"Rolling Stones"},
+  "i can't get no satisfaction":{key:"E", scale:"Pentatonic Minor",  artist:"Rolling Stones"},
+  "johnny b goode":            {key:"A#/Bb",scale:"Major",          artist:"Chuck Berry"},
+  "johnny b. goode":           {key:"A#/Bb",scale:"Major",          artist:"Chuck Berry"},
+  "layla":                     {key:"D#/Eb",scale:"Major",          artist:"Eric Clapton"},
+  "comfortably numb":          {key:"B",  scale:"Natural Minor",    artist:"Pink Floyd"},
+  "wish you were here":        {key:"G",  scale:"Major",            artist:"Pink Floyd"},
+  "another brick in the wall": {key:"D",  scale:"Natural Minor",    artist:"Pink Floyd"},
+  "money":                     {key:"B",  scale:"Natural Minor",    artist:"Pink Floyd"},
+  "time":                      {key:"F#", scale:"Natural Minor",    artist:"Pink Floyd"},
+  "brain damage":              {key:"D",  scale:"Major",            artist:"Pink Floyd"},
+  "little wing":               {key:"E",  scale:"Natural Minor",    artist:"Jimi Hendrix"},
+  "voodoo child":              {key:"E",  scale:"Pentatonic Minor",  artist:"Jimi Hendrix"},
+  "hey joe":                   {key:"C",  scale:"Major",            artist:"Jimi Hendrix"},
+  "highway to hell":           {key:"A",  scale:"Major",            artist:"AC/DC"},
+  "you shook me all night long":{key:"G", scale:"Major",            artist:"AC/DC"},
+  "thunderstruck":             {key:"B",  scale:"Major",            artist:"AC/DC"},
+  "hells bells":               {key:"A",  scale:"Natural Minor",    artist:"AC/DC"},
+  "tnt":                       {key:"A",  scale:"Major",            artist:"AC/DC"},
+  "black dog":                 {key:"A",  scale:"Natural Minor",    artist:"Led Zeppelin"},
+  "immigrant song":            {key:"A",  scale:"Natural Minor",    artist:"Led Zeppelin"},
+  "rock and roll":             {key:"A",  scale:"Major",            artist:"Led Zeppelin"},
+  "ramble on":                 {key:"G",  scale:"Major",            artist:"Led Zeppelin"},
+  "since i've been loving you":{key:"C",  scale:"Natural Minor",    artist:"Led Zeppelin"},
+  "communication breakdown":   {key:"E",  scale:"Major",            artist:"Led Zeppelin"},
+  "we will rock you":          {key:"A",  scale:"Major",            artist:"Queen"},
+  "we are the champions":      {key:"C",  scale:"Natural Minor",    artist:"Queen"},
+  "dont stop me now":          {key:"F",  scale:"Major",            artist:"Queen"},
+  "killer queen":              {key:"A#/Bb",scale:"Major",          artist:"Queen"},
+  "under pressure":            {key:"D",  scale:"Major",            artist:"Queen & Bowie"},
+  "another one bites the dust":{key:"E",  scale:"Natural Minor",    artist:"Queen"},
+  "radio ga ga":               {key:"G#/Ab",scale:"Major",          artist:"Queen"},
+  "free bird":                 {key:"G",  scale:"Major",            artist:"Lynyrd Skynyrd"},
+  "sweet home alabama":        {key:"D",  scale:"Major",            artist:"Lynyrd Skynyrd"},
+  "born to be wild":           {key:"E",  scale:"Major",            artist:"Steppenwolf"},
+  "paint it black":            {key:"E",  scale:"Phrygian",         artist:"Rolling Stones"},
+  "brown sugar":               {key:"G",  scale:"Major",            artist:"Rolling Stones"},
+  "start me up":               {key:"F",  scale:"Major",            artist:"Rolling Stones"},
+  "sympathy for the devil":    {key:"E",  scale:"Major",            artist:"Rolling Stones"},
+  "jumpin jack flash":         {key:"G#/Ab",scale:"Major",          artist:"Rolling Stones"},
+  // ── JIMI HENDRIX
+  "foxy lady":                 {key:"F#", scale:"Natural Minor",    artist:"Jimi Hendrix"},
+  "crosstown traffic":         {key:"D",  scale:"Major",            artist:"Jimi Hendrix"},
+  "fire":                      {key:"A",  scale:"Major",            artist:"Jimi Hendrix"},
+  // ── THE BEATLES
+  "let it be":                 {key:"C",  scale:"Major",            artist:"The Beatles"},
+  "hey jude":                  {key:"F",  scale:"Major",            artist:"The Beatles"},
+  "come together":             {key:"D",  scale:"Pentatonic Minor",  artist:"The Beatles"},
+  "yesterday":                 {key:"F",  scale:"Major",            artist:"The Beatles"},
+  "blackbird":                 {key:"G",  scale:"Major",            artist:"The Beatles"},
+  "something":                 {key:"C",  scale:"Major",            artist:"The Beatles"},
+  "here comes the sun":        {key:"D",  scale:"Major",            artist:"The Beatles"},
+  "twist and shout":           {key:"D",  scale:"Major",            artist:"The Beatles"},
+  "ob-la-di ob-la-da":         {key:"A",  scale:"Major",            artist:"The Beatles"},
+  "eleanor rigby":             {key:"C",  scale:"Natural Minor",    artist:"The Beatles"},
+  "while my guitar gently weeps":{key:"A",scale:"Natural Minor",    artist:"The Beatles"},
+  "in my life":                {key:"A",  scale:"Major",            artist:"The Beatles"},
+  "eight days a week":         {key:"D",  scale:"Major",            artist:"The Beatles"},
+  // ── POP / SOUL
+  "billie jean":               {key:"F#", scale:"Natural Minor",    artist:"Michael Jackson"},
+  "thriller":                  {key:"C#", scale:"Natural Minor",    artist:"Michael Jackson"},
+  "africa":                    {key:"B",  scale:"Natural Minor",    artist:"Toto"},
+  "dont stop believin":        {key:"E",  scale:"Major",            artist:"Journey"},
+  "don't stop believin'":      {key:"E",  scale:"Major",            artist:"Journey"},
+  "shape of you":              {key:"C#", scale:"Natural Minor",    artist:"Ed Sheeran"},
+  "blinding lights":           {key:"F",  scale:"Natural Minor",    artist:"The Weeknd"},
+  "uptown funk":               {key:"D",  scale:"Natural Minor",    artist:"Bruno Mars"},
+  "happy":                     {key:"F",  scale:"Major",            artist:"Pharrell Williams"},
+  "stay with me":              {key:"A",  scale:"Major",            artist:"Sam Smith"},
+  "shallow":                   {key:"A",  scale:"Major",            artist:"Lady Gaga"},
+  "all of me":                 {key:"F",  scale:"Major",            artist:"John Legend"},
+  "thinking out loud":         {key:"D",  scale:"Major",            artist:"Ed Sheeran"},
+  "perfect":                   {key:"G",  scale:"Major",            artist:"Ed Sheeran"},
+  "someone like you":          {key:"A",  scale:"Major",            artist:"Adele"},
+  "rolling in the deep":       {key:"A",  scale:"Natural Minor",    artist:"Adele"},
+  "hello":                     {key:"F",  scale:"Natural Minor",    artist:"Adele"},
+  "skyfall":                   {key:"A",  scale:"Natural Minor",    artist:"Adele"},
+  "bad guy":                   {key:"G",  scale:"Natural Minor",    artist:"Billie Eilish"},
+  "ocean eyes":                {key:"F",  scale:"Natural Minor",    artist:"Billie Eilish"},
+  "levitating":                {key:"B",  scale:"Major",            artist:"Dua Lipa"},
+  "save your tears":           {key:"C",  scale:"Natural Minor",    artist:"The Weeknd"},
+  "watermelon sugar":          {key:"G",  scale:"Major",            artist:"Harry Styles"},
+  "as it was":                 {key:"F",  scale:"Major",            artist:"Harry Styles"},
+  "stay":                      {key:"C#", scale:"Natural Minor",    artist:"Justin Bieber"},
+  "love yourself":             {key:"E",  scale:"Major",            artist:"Justin Bieber"},
+  "despacito":                 {key:"B",  scale:"Natural Minor",    artist:"Luis Fonsi"},
+  "havana":                    {key:"G#/Ab",scale:"Natural Minor",  artist:"Camila Cabello"},
+  // ── BLUES
+  "pride and joy":             {key:"E",  scale:"Blues",            artist:"Stevie Ray Vaughan"},
+  "the thrill is gone":        {key:"B",  scale:"Natural Minor",    artist:"B.B. King"},
+  "crossroads":                {key:"A",  scale:"Blues",            artist:"Robert Johnson / Clapton"},
+  "sweet home chicago":        {key:"E",  scale:"Blues",            artist:"Robert Johnson"},
+  "red house":                 {key:"A#/Bb",scale:"Blues",          artist:"Jimi Hendrix"},
+  "stormy monday":             {key:"G",  scale:"Blues",            artist:"T-Bone Walker"},
+  "hoochie coochie man":       {key:"A",  scale:"Blues",            artist:"Muddy Waters"},
+  "born under a bad sign":     {key:"G#/Ab",scale:"Blues",         artist:"Albert King"},
+  "texas flood":               {key:"G",  scale:"Blues",            artist:"Stevie Ray Vaughan"},
+  "mannish boy":               {key:"E",  scale:"Blues",            artist:"Muddy Waters"},
+  "hound dog":                 {key:"C",  scale:"Blues",            artist:"Elvis Presley"},
+  "blue suede shoes":          {key:"C",  scale:"Major",            artist:"Elvis Presley"},
+  // ── METAL
+  "master of puppets":         {key:"E",  scale:"Natural Minor",    artist:"Metallica"},
+  "paranoid":                  {key:"E",  scale:"Natural Minor",    artist:"Black Sabbath"},
+  "iron man":                  {key:"B",  scale:"Natural Minor",    artist:"Black Sabbath"},
+  "enter sandman":             {key:"E",  scale:"Natural Minor",    artist:"Metallica"},
+  "crazy train":               {key:"A",  scale:"Natural Minor",    artist:"Ozzy Osbourne"},
+  "black sabbath":             {key:"B",  scale:"Diminished",       artist:"Black Sabbath"},
+  "one":                       {key:"E",  scale:"Natural Minor",    artist:"Metallica"},
+  "fade to black":             {key:"B",  scale:"Natural Minor",    artist:"Metallica"},
+  "for whom the bell tolls":   {key:"E",  scale:"Natural Minor",    artist:"Metallica"},
+  "nothing else matters":      {key:"E",  scale:"Natural Minor",    artist:"Metallica"},
+  "seek and destroy":          {key:"E",  scale:"Natural Minor",    artist:"Metallica"},
+  "welcome home sanitarium":   {key:"C#", scale:"Natural Minor",    artist:"Metallica"},
+  "creeping death":            {key:"E",  scale:"Phrygian",         artist:"Metallica"},
+  "sabbath bloody sabbath":    {key:"D",  scale:"Natural Minor",    artist:"Black Sabbath"},
+  "war pigs":                  {key:"D",  scale:"Natural Minor",    artist:"Black Sabbath"},
+  "heaven and hell":           {key:"G",  scale:"Natural Minor",    artist:"Black Sabbath"},
+  "holy wars":                 {key:"E",  scale:"Phrygian",         artist:"Megadeth"},
+  "symphony of destruction":   {key:"E",  scale:"Natural Minor",    artist:"Megadeth"},
+  "raining blood":             {key:"E",  scale:"Phrygian",         artist:"Slayer"},
+  "walk":                      {key:"E",  scale:"Natural Minor",    artist:"Pantera"},
+  "cowboys from hell":         {key:"E",  scale:"Natural Minor",    artist:"Pantera"},
+  "eruption":                  {key:"A",  scale:"Natural Minor",    artist:"Van Halen"},
+  "running with the devil":    {key:"E",  scale:"Major",            artist:"Van Halen"},
+  "jump":                      {key:"C",  scale:"Major",            artist:"Van Halen"},
+  // ── GRUNGE / ALT
+  "smells like teen spirit":   {key:"F",  scale:"Natural Minor",    artist:"Nirvana"},
+  "come as you are":           {key:"E",  scale:"Natural Minor",    artist:"Nirvana"},
+  "heart shaped box":          {key:"C#", scale:"Natural Minor",    artist:"Nirvana"},
+  "about a girl":              {key:"E",  scale:"Natural Minor",    artist:"Nirvana"},
+  "lithium":                   {key:"D",  scale:"Major",            artist:"Nirvana"},
+  "rape me":                   {key:"A",  scale:"Natural Minor",    artist:"Nirvana"},
+  "in bloom":                  {key:"A#/Bb",scale:"Major",          artist:"Nirvana"},
+  "creep":                     {key:"G",  scale:"Major",            artist:"Radiohead"},
+  "wonderwall":                {key:"G",  scale:"Major",            artist:"Oasis"},
+  "dont look back in anger":   {key:"C",  scale:"Major",            artist:"Oasis"},
+  "champagne supernova":       {key:"A",  scale:"Major",            artist:"Oasis"},
+  "black hole sun":            {key:"G",  scale:"Major",            artist:"Soundgarden"},
+  "black":                     {key:"E",  scale:"Major",            artist:"Pearl Jam"},
+  "alive":                     {key:"A",  scale:"Major",            artist:"Pearl Jam"},
+  "evenflow":                  {key:"E",  scale:"Natural Minor",    artist:"Pearl Jam"},
+  "jeremy":                    {key:"A",  scale:"Natural Minor",    artist:"Pearl Jam"},
+  "man in the box":            {key:"E",  scale:"Pentatonic Minor",  artist:"Alice in Chains"},
+  "rooster":                   {key:"E",  scale:"Natural Minor",    artist:"Alice in Chains"},
+  "would":                     {key:"E",  scale:"Natural Minor",    artist:"Alice in Chains"},
+  "hunger strike":             {key:"E",  scale:"Major",            artist:"Temple of the Dog"},
+  // ── FUNK / SOUL / REGGAE
+  "give it away":              {key:"E",  scale:"Natural Minor",    artist:"RHCP"},
+  "under the bridge":          {key:"E",  scale:"Major",            artist:"RHCP"},
+  "californication":           {key:"A",  scale:"Natural Minor",    artist:"RHCP"},
+  "higher ground":             {key:"D#/Eb",scale:"Natural Minor",  artist:"RHCP / Stevie Wonder"},
+  "superstition":              {key:"D#/Eb",scale:"Natural Minor",  artist:"Stevie Wonder"},
+  "sir duke":                  {key:"B",  scale:"Major",            artist:"Stevie Wonder"},
+  "signed sealed delivered":   {key:"F",  scale:"Major",            artist:"Stevie Wonder"},
+  "i wish":                    {key:"D#/Eb",scale:"Natural Minor",  artist:"Stevie Wonder"},
+  "get up stand up":           {key:"G",  scale:"Natural Minor",    artist:"Bob Marley"},
+  "no woman no cry":           {key:"C",  scale:"Major",            artist:"Bob Marley"},
+  "redemption song":           {key:"G",  scale:"Major",            artist:"Bob Marley"},
+  "one love":                  {key:"A#/Bb",scale:"Major",          artist:"Bob Marley"},
+  "three little birds":        {key:"A",  scale:"Major",            artist:"Bob Marley"},
+  // ── COUNTRY
+  "jolene":                    {key:"C#", scale:"Natural Minor",    artist:"Dolly Parton"},
+  "take me home country roads":{key:"G",  scale:"Major",            artist:"John Denver"},
+  "friends in low places":     {key:"G",  scale:"Major",            artist:"Garth Brooks"},
+  "tennessee whiskey":         {key:"E",  scale:"Major",            artist:"Chris Stapleton"},
+  "fast car":                  {key:"C",  scale:"Major",            artist:"Tracy Chapman"},
+  "the house of the rising sun":{key:"A", scale:"Natural Minor",    artist:"The Animals"},
+  // ── JAZZ STANDARDS
+  "autumn leaves":             {key:"G",  scale:"Natural Minor",    artist:"Standard"},
+  "blue bossa":                {key:"C",  scale:"Natural Minor",    artist:"Standard"},
+  "fly me to the moon":        {key:"C",  scale:"Major",            artist:"Standard"},
+  "summertime":                {key:"A",  scale:"Natural Minor",    artist:"Gershwin"},
+  "take five":                 {key:"D#/Eb",scale:"Dorian",         artist:"Dave Brubeck"},
+  "so what":                   {key:"D",  scale:"Dorian",           artist:"Miles Davis"},
+  "misty":                     {key:"D#/Eb",scale:"Major",          artist:"Standard"},
+  "my favorite things":        {key:"E",  scale:"Natural Minor",    artist:"Coltrane"},
+  "round midnight":            {key:"D#/Eb",scale:"Natural Minor",  artist:"Thelonious Monk"},
+  "all the things you are":    {key:"G#/Ab",scale:"Major",          artist:"Standard"},
+  "there will never be another you":{key:"C",scale:"Major",         artist:"Standard"},
+  "the girl from ipanema":     {key:"F",  scale:"Major",            artist:"Jobim"},
+  "body and soul":             {key:"D#/Eb",scale:"Major",          artist:"Standard"},
+  "cheek to cheek":            {key:"F",  scale:"Major",            artist:"Standard"},
+  // ── CLASSIC HITS
+  "rosanna":                   {key:"D",  scale:"Major",            artist:"Toto"},
+  "eye of the tiger":          {key:"C",  scale:"Natural Minor",    artist:"Survivor"},
+  "born in the usa":           {key:"B",  scale:"Major",            artist:"Springsteen"},
+  "dancing in the dark":       {key:"D",  scale:"Major",            artist:"Springsteen"},
+  "the river":                 {key:"E",  scale:"Major",            artist:"Springsteen"},
+  "like a rolling stone":      {key:"C",  scale:"Major",            artist:"Bob Dylan"},
+  "knockin on heavens door":   {key:"G",  scale:"Major",            artist:"Bob Dylan"},
+  "knocking on heaven's door": {key:"G",  scale:"Major",            artist:"Bob Dylan"},
+  "mr tambourine man":         {key:"G",  scale:"Major",            artist:"Bob Dylan"},
+  "hurt":                      {key:"A",  scale:"Natural Minor",    artist:"NIN / Johnny Cash"},
+  "sound of silence":          {key:"D",  scale:"Natural Minor",    artist:"Simon & Garfunkel"},
+  "mrs robinson":              {key:"E",  scale:"Major",            artist:"Simon & Garfunkel"},
+  "bridge over troubled water":{key:"D#/Eb",scale:"Major",          artist:"Simon & Garfunkel"},
+  "take it easy":              {key:"G",  scale:"Major",            artist:"Eagles"},
+  "desperado":                 {key:"D",  scale:"Major",            artist:"Eagles"},
+  "new kid in town":           {key:"E",  scale:"Major",            artist:"Eagles"},
+  "life in the fast lane":     {key:"E",  scale:"Pentatonic Minor",  artist:"Eagles"},
+  "running on empty":          {key:"E",  scale:"Major",            artist:"Jackson Browne"},
+  "more than a feeling":       {key:"D",  scale:"Major",            artist:"Boston"},
+  "peace of mind":             {key:"A",  scale:"Major",            artist:"Boston"},
+  "cant hold us":              {key:"F#", scale:"Major",            artist:"Macklemore"},
+  "thrift shop":               {key:"D#/Eb",scale:"Natural Minor",  artist:"Macklemore"},
+  "lose yourself":             {key:"D",  scale:"Natural Minor",    artist:"Eminem"},
+  "without me":                {key:"G",  scale:"Natural Minor",    artist:"Eminem"},
+  "the real slim shady":       {key:"G",  scale:"Major",            artist:"Eminem"},
+  "still dre":                 {key:"F",  scale:"Natural Minor",    artist:"Dr. Dre"},
+  // ── INDIE / MODERN
+  "seven nation army":         {key:"E",  scale:"Natural Minor",    artist:"White Stripes"},
+  "icky thump":                {key:"E",  scale:"Pentatonic Minor",  artist:"White Stripes"},
+  "black betty":               {key:"A",  scale:"Blues",            artist:"Ram Jam"},
+  "teen spirit":               {key:"F",  scale:"Natural Minor",    artist:"Nirvana"},
+  "mr brightside":             {key:"C",  scale:"Major",            artist:"The Killers"},
+  "all these things that i've done":{key:"A#/Bb",scale:"Major",    artist:"The Killers"},
+  "human":                     {key:"C#", scale:"Major",            artist:"The Killers"},
+  "take me out":               {key:"F#", scale:"Natural Minor",    artist:"Franz Ferdinand"},
+  "do i wanna know":           {key:"G",  scale:"Natural Minor",    artist:"Arctic Monkeys"},
+  "r u mine":                  {key:"B",  scale:"Natural Minor",    artist:"Arctic Monkeys"},
+  "505":                       {key:"A",  scale:"Natural Minor",    artist:"Arctic Monkeys"},
+  "fluorescent adolescent":    {key:"D",  scale:"Major",            artist:"Arctic Monkeys"},
+  "humbug":                    {key:"E",  scale:"Natural Minor",    artist:"Arctic Monkeys"},
+  "use somebody":              {key:"C",  scale:"Major",            artist:"Kings of Leon"},
+  "sex on fire":               {key:"A",  scale:"Major",            artist:"Kings of Leon"},
+  "the cave":                  {key:"A",  scale:"Natural Minor",    artist:"Mumford & Sons"},
+  "little lion man":           {key:"G",  scale:"Major",            artist:"Mumford & Sons"},
+  "home":                      {key:"G",  scale:"Major",            artist:"Phillip Phillips"},
+  "ho hey":                    {key:"C",  scale:"Major",            artist:"The Lumineers"},
+  "stubborn love":             {key:"E",  scale:"Major",            artist:"The Lumineers"},
+  "skinny love":               {key:"A#/Bb",scale:"Major",          artist:"Bon Iver"},
+  "re: stacks":                {key:"B",  scale:"Major",            artist:"Bon Iver"},
+};
+
+function normalize(s) {
+  return s.toLowerCase()
+    .replace(/['']/g, "'")
+    .replace(/[^a-z0-9' ]/g, '')
+    .trim();
+}
+
+function lookupSong() {
+  const raw = document.getElementById('song-input').value.trim();
+  if (!raw) return;
+  const query = normalize(raw);
+  const el = document.getElementById('song-result');
+  const extEl = document.getElementById('ext-links');
+
+  let found = SONG_DB[query];
+
+  if (!found) {
+    for (const [k, v] of Object.entries(SONG_DB)) {
+      if (k.includes(query) || query.includes(k)) { found = v; break; }
+    }
+  }
+  if (!found) {
+    const qWords = new Set(query.split(' ').filter(w => w.length > 1));
+    let best = 0, bestEntry = null;
+    for (const [k, v] of Object.entries(SONG_DB)) {
+      const kWords = k.split(' ');
+      const common = kWords.filter(w => qWords.has(w)).length;
+      if (common > best) { best = common; bestEntry = v; }
+    }
+    if (best >= 2) found = bestEntry;
+  }
+
+  if (found) {
+    const keyOpt = [...document.getElementById('key-sel').options]
+      .find(o => (ENAR[o.value] || o.value) === found.key || o.value === found.key);
+    if (keyOpt) document.getElementById('key-sel').value = keyOpt.value;
+    document.getElementById('scale-sel').value = found.scale;
+    renderFretboard(); updateScaleInfo(); updateYT();
+
+    el.innerHTML = `<div class="song-found">
+      <div class="song-key-badge">${found.key}</div>
+      <div class="song-info">
+        <h3>${raw}</h3>
+        <p>by ${found.artist}</p>
+        <span class="scale-tag">${found.scale}</span>
+      </div>
+    </div>`;
+    extEl.style.display = 'none';
+  } else {
+    const enc = encodeURIComponent(raw + ' guitar key');
+    el.innerHTML = `<div class="song-not-found">
+      <b>"${raw}"</b> not found in local database.<br>
+      Search online to find the key, then set it manually above.
+    </div>`;
+    extEl.style.display = 'flex';
+    extEl.innerHTML = '';
+    [
+      ['Ultimate Guitar', `https://www.ultimate-guitar.com/search.php?search_type=title&value=${encodeURIComponent(raw)}`],
+      ['Songsterr',       `https://www.songsterr.com/a/wa/song?pattern=${encodeURIComponent(raw)}`],
+      ['Google',          `https://www.google.com/search?q=${enc}`],
+    ].forEach(([label, url]) => {
+      const a = document.createElement('a');
+      a.className = 'ext-link'; a.textContent = label;
+      a.href = url; a.target = '_blank';
+      extEl.appendChild(a);
+    });
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────
+// INSTRUMENT / TUNING STATE
+// ────────────────────────────────────────────────────────────────────
+function instVal()   { return document.getElementById('inst-sel').value; }
+function tuningKey() { return document.getElementById('tuning-sel').value; }
+
+function updateTuningOptions() {
+  const inst = instVal();
+  const tuningEl = document.getElementById('tuning-sel');
+  if (inst === 'guitar') {
+    tuningEl.innerHTML = GUITAR_TUNING_HTML;
+  } else {
+    tuningEl.innerHTML = BASS_TUNING_HTML[inst];
+  }
+  // Update body mode for CSS string thickness
+  document.body.dataset.mode = inst;
+  // Update logo and fretboard title
+  const isBass = inst !== 'guitar';
+  document.getElementById('logo-mark').textContent = isBass ? '🎵' : '🎸';
+  document.getElementById('fb-title').textContent =
+    (isBass ? '🎵' : '🎸') + ' Maple Fretboard · click a note to hear it';
+}
+
+function tuningArr() {
+  const inst = instVal();
+  const key  = tuningKey();
+  return inst === 'guitar' ? TUNINGS[key] : BASS_TUNINGS[key];
+}
+
+function getOpenOctaves() {
+  const inst = instVal();
+  if (inst === 'guitar') return GUITAR_OPEN_OCTAVES;
+  return BASS_OPEN_OCTAVES[tuningKey()];
+}
+
+function getStrLabels() {
+  const inst = instVal();
+  const key  = tuningKey();
+  const raw  = inst === 'guitar' ? TUNING_LABELS[key] : BASS_TUNING_LABELS[key];
+  return raw.split(' ').reverse(); // index 0=lowest string
+}
+
+function getStringCount() {
+  const inst = instVal();
+  return inst === 'bass5' ? 5 : inst === 'bass4' ? 4 : 6;
+}
+
+// ────────────────────────────────────────────────────────────────────
+// STATE
+// ────────────────────────────────────────────────────────────────────
+let showOpen = true;
+
+function toggleOpen() {
+  showOpen = !showOpen;
+  document.getElementById('open-lbl').textContent = showOpen ? 'On' : 'Off';
+  renderFretboard();
+}
+
+// ────────────────────────────────────────────────────────────────────
+// FRETBOARD RENDERING
+// ────────────────────────────────────────────────────────────────────
+function rootIdx()    { const v = document.getElementById('key-sel').value; return CHR.indexOf(ENAR[v] || v); }
+function scaleNotes() { const r = rootIdx(); return SCALES[document.getElementById('scale-sel').value].map(i=>(r+i)%12); }
+function fretCount()  { return parseInt(document.getElementById('frets-sel').value); }
+function displayMode(){ return document.getElementById('display-sel').value; }
+
+function renderFretboard() {
+  const sn = scaleNotes(), ri = rootIdx();
+  const tuning     = tuningArr();
+  const openOcts   = getOpenOctaves();
+  const strLabels  = getStrLabels();
+  const numStrings = getStringCount();
+  const frets      = fretCount();
+  const mode       = displayMode();
+  const scaleName  = document.getElementById('scale-sel').value;
+
+  let html = '<table class="fb-table"><thead><tr><th></th>';
+  if (showOpen) html += '<th class="fh open-h">Open</th>';
+  for (let f = 1; f <= frets; f++) html += `<th class="fh">${f}</th>`;
+  html += '</tr></thead><tbody>';
+
+  // Render strings: highest (visually top) first → lowest (bottom)
+  // s iterates numStrings-1 → 0, where s=0=low string, s=numStrings-1=high string
+  for (let s = numStrings - 1; s >= 0; s--) {
+    const strCls = `str-${numStrings - 1 - s}`;
+    html += `<tr class="string-row ${strCls}"><td class="slabel">${strLabels[s]}</td>`;
+
+    const fretRange = showOpen
+      ? [-1, ...Array.from({length: frets}, (_, i) => i + 1)]
+      : Array.from({length: frets}, (_, i) => i + 1);
+
+    for (const f of fretRange) {
+      const isOpen  = f < 0;
+      const actualF = Math.max(0, f);
+      const noteI   = (tuning[s] + actualF) % 12;
+      const inSc    = sn.includes(noteI);
+      const isRoot  = noteI === ri;
+
+      let cls = isOpen ? 'fc open-fc' : 'fc';
+      if (!isOpen && actualF === 1) cls += ' nut-sep';
+
+      let dot = '';
+      if (inSc) {
+        const dotCls = isRoot ? 'nd nd-root' : 'nd nd-scale';
+        let lbl = '';
+        if (mode === 'notes') {
+          lbl = CHR[noteI];
+        } else if (mode === 'intervals') {
+          lbl = INAMES[(noteI - ri + 12) % 12];
+        } else {
+          const di = SCALES[scaleName].indexOf((noteI - ri + 12) % 12);
+          lbl = di >= 0 ? DEG[di] : CHR[noteI];
+        }
+        const openOct = openOcts[s];
+        const oct = openOct + Math.floor((tuning[s] + actualF) / 12);
+        dot = `<span class="${dotCls}" onclick="playNoteClick(${noteI},${oct})">${lbl}</span>`;
+      }
+      html += `<td class="${cls}"><div class="sw"></div>${dot}</td>`;
+    }
+    html += '</tr>';
+  }
+
+  // Position dot marker row
+  html += '<tr class="dot-row"><td></td>';
+  if (showOpen) html += '<td class="dot-cell"></td>';
+  for (let f = 1; f <= frets; f++) {
+    if (DOUBLE_DOTS.includes(f)) {
+      html += `<td class="dot-cell"><div class="dot-double"><span class="dot-inlay"></span><span class="dot-inlay"></span></div></td>`;
+    } else if (FRET_DOTS.includes(f)) {
+      html += `<td class="dot-cell"><span class="dot-inlay"></span></td>`;
+    } else {
+      html += '<td class="dot-cell"></td>';
+    }
+  }
+  html += '</tr>';
+  html += '</tbody></table>';
+  document.getElementById('fb').innerHTML = html;
+}
+
+function updateScaleInfo() {
+  const sn = scaleNotes(), ri = rootIdx();
+  const scaleName = document.getElementById('scale-sel').value;
+  const key       = document.getElementById('key-sel').value;
+  const ivals     = SCALES[scaleName];
+
+  document.getElementById('sname').textContent = `${key} ${scaleName}`;
+
+  const pills = sn.map((n, i) => {
+    const iv   = ivals[i];
+    const isR  = n === ri;
+    return `<span class="note-pill${isR ? ' root' : ''}">${CHR[n]}<span class="iname">${INAMES[iv]}</span></span>`;
+  }).join('');
+  document.getElementById('spills').innerHTML = pills;
+}
+
+// ────────────────────────────────────────────────────────────────────
+// AUDIO — Web Audio API note playback
+// ────────────────────────────────────────────────────────────────────
+let rawCtx = null;
+function getRawCtx() {
+  if (!rawCtx) rawCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (rawCtx.state === 'suspended') rawCtx.resume();
+  return rawCtx;
+}
+function noteFreq(noteIdx, octave) {
+  const midi = (octave + 1) * 12 + noteIdx;
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+function playNoteClick(noteI, oct = 4) {
+  const ctx  = getRawCtx();
+  const freq = noteFreq(noteI, oct);
+  const isBass = instVal() !== 'guitar';
+
+  const osc  = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const filt = ctx.createBiquadFilter();
+
+  osc.type = isBass ? 'sawtooth' : 'triangle';
+  osc.frequency.value = freq;
+  filt.type = 'lowpass';
+  filt.frequency.value = isBass ? 900 : 3200;
+  filt.Q.value = isBass ? 1.5 : 1.0;
+
+  osc.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
+  const t = ctx.currentTime;
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(isBass ? 0.5 : 0.4, t + 0.010);
+  gain.gain.exponentialRampToValueAtTime(0.001, isBass ? 2.0 : 1.6);
+  osc.start(t); osc.stop(t + (isBass ? 2.1 : 1.7));
+}
+
+// ────────────────────────────────────────────────────────────────────
+// YOUTUBE BACKING TRACK
+// ────────────────────────────────────────────────────────────────────
+function buildYTQuery() {
+  const key    = document.getElementById('key-sel').value;
+  const scale  = document.getElementById('scale-sel').value;
+  const bpm    = document.getElementById('yt-bpm').value;
+  const isBass = instVal() !== 'guitar';
+  const tags   = [...document.querySelectorAll('.yt-chip.active')].map(c =>
+    isBass ? c.dataset.tagBass : c.dataset.tagGuitar
+  );
+  const instWord = isBass ? 'bass' : '';
+  const tagStr = tags.join(' ');
+  return `${key} ${scale} ${instWord} backing track ${bpm}bpm ${tagStr}`.replace(/\s+/g, ' ').trim();
+}
+
+function buildYTSuggestions() {
+  const key    = document.getElementById('key-sel').value;
+  const scale  = document.getElementById('scale-sel').value;
+  const bpm    = parseInt(document.getElementById('yt-bpm').value);
+  const isBass = instVal() !== 'guitar';
+  const iWord  = isBass ? 'bass' : 'guitar';
+  return [
+    `${key} ${scale} backing track looping`,
+    `${key} ${scale} backing track ${Math.max(40, bpm - 20)}bpm slow`,
+    `${key} ${scale} ${iWord} jam track`,
+    `${key} blues backing track ${iWord}`,
+  ];
+}
+
+function updateYT() {
+  document.getElementById('yt-bpm-val').textContent = document.getElementById('yt-bpm').value;
+  const q = buildYTQuery();
+  document.getElementById('yt-preview').textContent = `"${q}"`;
+  const suggs = buildYTSuggestions();
+  document.getElementById('yt-suggestions').innerHTML = suggs.map(s =>
+    `<a class="yt-sugg" href="https://www.youtube.com/results?search_query=${encodeURIComponent(s)}" target="_blank">${s}</a>`
+  ).join('');
+}
+
+function toggleChip(el) {
+  el.classList.toggle('active');
+  updateYT();
+}
+
+function openYT() {
+  const q = buildYTQuery();
+  window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(q), '_blank');
+  return false;
+}
+
+// ────────────────────────────────────────────────────────────────────
+// EVENTS
+// ────────────────────────────────────────────────────────────────────
+document.getElementById('inst-sel').addEventListener('change', () => {
+  updateTuningOptions();
+  renderFretboard(); updateScaleInfo(); updateYT();
+});
+
+['key-sel', 'scale-sel', 'tuning-sel', 'display-sel', 'frets-sel'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => {
+    renderFretboard(); updateScaleInfo(); updateYT();
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────────────────────────────────
+updateTuningOptions();
+document.getElementById('key-sel').value   = 'A';
+document.getElementById('scale-sel').value = 'Pentatonic Minor';
+renderFretboard();
+updateScaleInfo();
+updateYT();
+</script>
+
+<!-- Ko-fi floating button -->
+<a class="kofi-btn" href="https://ko-fi.com/lukeblossom" target="_blank" rel="noopener">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082
+    5.975.062 8.046c.628 8.773 6.986 9.367 6.986 9.367s1.747.206 2.737.206c1.038 0 2.684-.206
+    2.684-.206 7.856-.867 8.55-8.046 8.55-8.046.15-1.469-.164-5.572-.182-5.572zm-5.648
+    5.605c-.264.246-.585.36-.924.36h-1.97l.001 1.175c0 .328-.127.636-.358.868a1.215 1.215 0
+    0 1-.866.358 1.224 1.224 0 0 1-1.223-1.226l-.001-1.175h-1.97a1.308 1.308 0 0
+    1-.924-.36 1.244 1.244 0 0 1-.358-.875v-3.6c0-.34.127-.651.358-.882.264-.246.585-.36.924-.36h6.31c.34
+    0 .66.114.924.36.23.23.358.543.358.882v3.6c0 .333-.127.644-.281.875z"/>
+  </svg>
+  Buy me a coffee
+</a>
+
+<!-- Footer -->
+<footer class="site-footer">
+  Fretboard Scale Explorer &nbsp;·&nbsp;
+  Free &amp; open source &nbsp;·&nbsp;
+  <a href="https://github.com/lukeblossom/fretboard-scale-explorer" target="_blank" rel="noopener">GitHub</a>
+  &nbsp;·&nbsp;
+  <a href="https://ko-fi.com/lukeblossom" target="_blank" rel="noopener">Support this project ☕</a>
+</footer>
+
+</body>
+</html>
